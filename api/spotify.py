@@ -58,4 +58,32 @@ def recentlyPlayed():
     return response.json()
 
 def nowPlaying():
-    pass
+    token = refreshToken()
+    headers = {"Authorization": f"Bearer {token}"}
+    response = requests.get(NOW_PLAYING_URL, headers=headers)
+
+    if response.status_code == 204:
+        return {}
+    return response.json()
+
+def barGen(barCount):
+    barCSS = ""
+    left = 1
+    for i in range(1, barCount+1):
+        anim = random.randint(1000, 1350)
+        barCSS += (
+            ".bar:nth-child({})  {{ left: {}px; animation-duration: {}ms; }}".format(
+                i, left, anim
+            )
+        )
+        left += 4
+    return barCSS
+
+def getTemplate():
+    try:
+        file = open("api/templates.json", "r")
+        templates = json.loads(file.read())
+        return templates["templates"][templates["current-theme"]]
+    except Exception as e:
+        print(f"Failed to load templates.")
+        return FALLBACK_THEME
