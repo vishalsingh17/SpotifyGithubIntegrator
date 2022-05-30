@@ -1,0 +1,8 @@
+#Environment variables
+.env
+
+#Pycache
+__pycache__
+
+#Vscode
+.vscode
