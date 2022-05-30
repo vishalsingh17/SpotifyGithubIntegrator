@@ -87,3 +87,32 @@ def getTemplate():
     except Exception as e:
         print(f"Failed to load templates.")
         return FALLBACK_THEME
+
+def loadImageB64(url):
+    response = requests.get(url)
+    return b64encode(response.content).decode("ascii")
+
+def makeSVG(data, background_color, border_color):
+    barCount = 64
+    contentBar = "".join(["<div class='bar></div>" for i in range(barCount)])
+    barCSS = barGen(barCount)
+
+    if data == {} or data["item"] == "None" or data["item"] is None:
+        currentStatus = "Was playing:"
+        recentlyPlays = recentlyPlayed()
+        recentlyPlaysLength = len(recentPlays["items"])
+        itemIndex = random.randint(0, recentlyPlaysLength-1)
+        item = recentlyPlays["items"][itemIndex]["track"]
+    else:
+        item = data["item"]
+        currentStatus = "Vibing to:"
+
+    if item["album"]["images"] == []:
+        image = PLACEHOLDER_IMAGE
+    else:
+        image = loadImageB64(item["album"]["images"][1]["url"])
+
+    artistName = item["artists"][0]["name"].replace("&", "&amp;")
+    songName = item["name"].replace("&", "&amp;")
+    songURI = item["external_urls"]["spotify"]
+    artistURI = item["artists"][0]["external_urls"]["spotify"]
