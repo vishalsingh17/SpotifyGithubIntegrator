@@ -116,3 +116,37 @@ def makeSVG(data, background_color, border_color):
     songName = item["name"].replace("&", "&amp;")
     songURI = item["external_urls"]["spotify"]
     artistURI = item["artists"][0]["external_urls"]["spotify"]
+
+    dataDict = {
+        "contentBar": contentBar,
+        "barCSS": barCSS,
+        "artistName": artistName,
+        "songName": songName,
+        "songURI": songURI,
+        "artistURI": artistURI,
+        "image": image,
+        "status": currentStatus,
+        "background_color": background_color,
+        "border_color": border_color
+    }
+
+    return render_template(getTemplate(), **dataDict)
+
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+@app.route('/with_parameters')
+
+def catch_all(path):
+    background_color = request.args.get("background_color")
+    border_color = request.args.get("border_color") or "181414"
+
+    data = nowPlaying()
+    svg = makeSVG(data, background_color, border_color)
+
+    resp = Response(svg, mimetype="image/svg+xml")
+    resp.headers["Cache-Control"] = "s-maxage=1"
+
+    return resp
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", debug=True, port=os.getenv("PORT") or 5000)
